@@ -177,7 +177,7 @@ class BitstampCmd(cmd.Cmd):
 		auth = self._api_auth()
 		ret = json.loads(bs.api_open_orders(auth))
 		for item in ret:
-			print item
+			print json.dumps(item)
 
 	# cancel order
 	def help_cancel(self):
@@ -213,7 +213,7 @@ class BitstampCmd(cmd.Cmd):
 		else:
 			ret = json.loads(bs.api_user_transactions(auth))
 		for item in ret:
-			print item
+			print json.dumps(item)
 
 	# exit
 	def help_exit(self):
