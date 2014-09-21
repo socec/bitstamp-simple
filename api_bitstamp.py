@@ -121,7 +121,7 @@ def api_buy(authorization, amount, price):
 	data = authorization + "&amount=" + ("%.8f" % amount) + "&price=" + str(price)
 	return _api_http_communication(url, data)
 
-def sell(authorization, amount, price):
+def api_sell(authorization, amount, price):
 	# Params:
 	# key - API key
 	# signature - signature
