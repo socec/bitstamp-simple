@@ -9,11 +9,11 @@ import urllib2, json
 # authorization functions
 # =======================
 
-def update_nonce(nonce):
+def nonce_update(nonce):
 	# return greater value between incremented nonce and current timestamp
 	return int(max(int(nonce)+1, int(time.time())))
 
-def get_authorization(api_key, api_secret, client_id, nonce):
+def authorization(api_key, api_secret, client_id, nonce):
 	nonce = str(nonce)
 	message = nonce + client_id + api_key
 	signature = hmac.new(api_secret, msg=message, digestmod=hashlib.sha256).hexdigest().upper()
@@ -25,13 +25,13 @@ def get_authorization(api_key, api_secret, client_id, nonce):
 
 base_url = "https://www.bitstamp.net/api"
 
-def _api_http_communication(url, data):
+def _http_communication(url, data):
 	connection = urllib2.urlopen(url, data)
 	response = connection.read()
 	connection.close()
 	return response
 
-def api_balance(authorization):
+def balance(authorization):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -48,9 +48,9 @@ def api_balance(authorization):
 
 	url = base_url + "/balance/"
 	data = authorization
-	return _api_http_communication(url, data)
+	return _http_communication(url, data)
 
-def api_user_transactions(authorization, offset = 0, limit = 200, sort = "desc"):
+def user_transactions(authorization, offset = 0, limit = 200, sort = "desc"):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -70,9 +70,9 @@ def api_user_transactions(authorization, offset = 0, limit = 200, sort = "desc")
 
 	url = base_url + "/user_transactions/"
 	data = authorization + "&offset=" + str(offset) + "&limit=" + str(limit) + "&sort=" + sort
-	return _api_http_communication(url, data)
+	return _http_communication(url, data)
 
-def api_open_orders(authorization):
+def open_orders(authorization):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -87,9 +87,9 @@ def api_open_orders(authorization):
 
 	url = base_url + "/open_orders/"
 	data = authorization
-	return _api_http_communication(url, data)
+	return _http_communication(url, data)
 
-def api_cancel_order(authorization, order_id):
+def cancel_order(authorization, order_id):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -100,9 +100,9 @@ def api_cancel_order(authorization, order_id):
 
 	url = base_url + "/cancel_order/"
 	data = authorization + "&id=" + str(order_id)
-	return _api_http_communication(url, data)
+	return _http_communication(url, data)
 
-def api_buy(authorization, amount, price):
+def buy(authorization, amount, price):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -119,9 +119,9 @@ def api_buy(authorization, amount, price):
 
 	url = base_url + "/buy/"
 	data = authorization + "&amount=" + ("%.8f" % amount) + "&price=" + str(price)
-	return _api_http_communication(url, data)
+	return _http_communication(url, data)
 
-def api_sell(authorization, amount, price):
+def sell(authorization, amount, price):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -138,4 +138,4 @@ def api_sell(authorization, amount, price):
 
 	url = base_url + "/sell/"
 	data = authorization + "&amount=" + ("%.8f" % amount) + "&price=" + str(price)
-	return _api_http_communication(url, data)
+	return _http_communication(url, data)
