@@ -1,11 +1,13 @@
 import cmd, json
 import api_bitstamp as bs
+import authorization
 
 # Command interpreter for Bitstamp API
 class BitstampCmd(cmd.Cmd):
 
 	# session data
 	# ============
+
 	nonce = 0
 	api_key = "xxx"
 	api_secret = "xxx"
@@ -13,6 +15,7 @@ class BitstampCmd(cmd.Cmd):
 
 	# overriding interpreter setup
 	# ============================
+
 	prompt = "bstamp$ "
 
 	def emptyline(self):
@@ -23,9 +26,11 @@ class BitstampCmd(cmd.Cmd):
 		self.do_help(None)
 
 	def preloop(self):
-		auth_data = self._auth_load()
-		if (auth_data != []):
-			self.api_key, self.api_secret, self.client_id = auth_data
+		ret = raw_input("Load authorization data? [y/n]: ")
+		if (ret == "y"):
+			auth_data = authorization.load()
+			if (auth_data != []):
+				self.api_key, self.api_secret, self.client_id = auth_data
 		return
 
 	def postloop(self):
@@ -64,27 +69,6 @@ class BitstampCmd(cmd.Cmd):
 		else:
 			return False
 
-	# store authorization data
-	def _auth_save(self, api_key, api_secret, client_id):
-		with open('authpyc', 'w') as f:
-			f.write(api_key + api_secret + client_id)
-
-	# load authorization data
-	def _auth_load(self):
-		try:
-			with open('authpyc', 'r') as f:
-				auth = f.read()
-		except:
-			print "Can't open authorization data file."
-			return []
-		if (len(auth) != 70):
-			print "Authorization data file is corrupted ({}). ".format(len(auth))
-			return []
-		api_key = auth[0:32]
-		api_secret = auth[32:64]
-		client_id = auth[64:70]
-		return api_key, api_secret, client_id
-
 	# commands
 	# ========
 
@@ -104,7 +88,7 @@ class BitstampCmd(cmd.Cmd):
 		self.api_secret = arglist[1]
 		self.client_id = arglist[2]
 		if ((len(arglist) == 4) and (arglist[3] == "-s")):
-			self._auth_save(self.api_key, self.api_secret, self.client_id)
+			authorization.save(self.api_key, self.api_secret, self.client_id)
 
 	# show balance
 	def help_balance(self):
