@@ -12,6 +12,8 @@ Use your Bitstamp API key, secret and client ID to execute simple commands:
 
 Just use Python to run *bitstamp-simple.py* and enter "?" to get internal help.
 
+If you have PyCrypto intalled your Bitstamp authorization data is stored encrypted.
+
 If you find this useful you can always leave a tip (BTC):  
 1KigKW7R2tt19Vs4ZXkx7CH1cQA9Lm8L8t
 
