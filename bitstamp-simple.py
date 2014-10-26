@@ -1,4 +1,4 @@
-import cmd, json
+import cmd, json, getopt
 import api, authorization
 
 # Command interpreter for Bitstamp API
@@ -73,28 +73,40 @@ class BitstampCmd(cmd.Cmd):
 
 	# enter authorization data
 	def help_authorization(self):
-		print "USAGE:"
-		print "\t authorization <api_key> <api_secret> <client_id> [-s]"
+		print "\nUSAGE:"
+		print "\tauthorization [--load] [--save] [key secret id]"
 		print "DESCRIPTION:"
-		print "\t Enter API key, API secret and client ID for authorization of private API calls."
-		print "\t Providing \"-s\" option stores them to a file in the current directory."
+		print "\tManage API key, API secret and client ID for private API calls.\n"
+		print "\t[key secret id]  Enter authorization data for current session."
+		print "\t[--save]         Saves current authorization data to a local file."
+		print "\t[--load]         Loads authorization data from a local file."
 	def do_authorization(self, args):
-		arglist = self._args_to_list(args)
-		if ((len(arglist) < 3) or (len(arglist) > 4)):
+		try:
+			opts, args = getopt.getopt(args.split(), '', ['save', 'load'])
+		except getopt.GetoptError as err:
+			print str(err)
+			opts, args = ([], [])
+		if (len(args) > 3 or (len(args) < 3 and len(opts) != 1)):
 			self.do_help("authorization")
 			return
-		self.api_key = arglist[0]
-		self.api_secret = arglist[1]
-		self.client_id = arglist[2]
-		if ((len(arglist) == 4) and (arglist[3] == "-s")):
-			authorization.save(self.api_key, self.api_secret, self.client_id)
+		if (len(args) == 3): 
+			self.api_key, self.api_secret, self.client_id = args
+		if (len(opts) == 1):
+			if ('--save' == opts[0][0]):
+				authorization.save(self.api_key, self.api_secret, self.client_id)
+				print "Authorization data saved."
+			if ('--load' == opts[0][0]):
+				auth_data = authorization.load()
+				if (auth_data != []):
+					self.api_key, self.api_secret, self.client_id = auth_data
+					print "Authorization data loaded."
 
 	# show balance
 	def help_balance(self):
-		print "USAGE:"
-		print "\t balance"
+		print "\nUSAGE:"
+		print "\tbalance"
 		print "DESCRIPTION:"
-		print "\t Show current account balance."
+		print "\tShow current account balance."
 	def do_balance(self, args):
 		auth = self._api_auth()
 		ret = json.loads(api.balance(auth))
@@ -102,60 +114,93 @@ class BitstampCmd(cmd.Cmd):
 
 	# buy BTC
 	def help_buy(self):
-		print "USAGE:"
-		print "\t buy <usd_share> <price>"
+		print "\nUSAGE:"
+		print "\tbuy [-s usd_share] | [-a usd_amount] <price>"
 		print "DESCRIPTION:"
-		print "\t Buy BTC at requested price by spending requested share [0.0, 1.0] of available USD."
-		print "\t e.g. buy 0.25 100.0"
+		print "\tBuy BTC at requested price by spending available USD.\n"
+		print "\t[-s usd_share]   Specify share of available USD to spend (e.g. 0.314)."
+		print "\t[-a usd_amount]  Specify amount of available USD to spend (e.g. 31.4)."
 	def do_buy(self, args):
-		arglist = self._args_to_list(args)
-		if (len(arglist) != 2):
+		try:
+			opts, args = getopt.getopt(args.split(), 's:a:')
+		except getopt.GetoptError as err:
+			print str(err)
+			opts, args = ([], [])
+		if (len(opts) != 1 or len(args) != 1):
 			self.do_help("buy")
 			return
-		usd_share, price = arglist
-		if (self._share_invalid(usd_share)):
-			return
+		price = args[0]
 		auth = self._api_auth()
 		usd_available = json.loads(api.balance(auth))["usd_available"]
-		btc_amount = (float(usd_share) * float(usd_available)) / float(price)
+		btc_amount = 0.0
+		if ('-s' == opts[0][0]):
+			usd_share = opts[0][1]
+			if (float(usd_share) < 0.0 or float(usd_share) > 1.0):
+				print "USD share {} not in expected range (0.0 - 1.0).".format(usd_share)
+				return
+			btc_amount = (float(usd_share) * float(usd_available)) / float(price)
+		if ('-a' == opts[0][0]):
+			usd_amount = opts[0][1]
+			if (float(usd_amount) < 0.0 or float(usd_amount) > float(usd_available)):
+				print "USD amount {} not available.".format(usd_amount)
+				return
+			btc_amount = float(usd_amount) / float(price)
 		if (btc_amount == 0.0):
-			print "BTC amount is 0"
+			print "Can't buy 0.0 BTC."
 			return
-		print "buying {} BTC for {} USD/BTC".format(btc_amount, price)
+		confirm = raw_input("Buying {} BTC for {} USD/BTC? [y/n]: ".format(btc_amount, price))
+		if (confirm != "y"):
+			return
 		auth = self._api_auth()
 		print api.buy(auth, btc_amount, price)
 
 	# sell BTC
 	def help_sell(self):
-		print "USAGE:"
-		print "\t sell <btc_share> <price>"
+		print "\nUSAGE:"
+		print "\tsell [-s btc_share] | [-a btc_amount] <price>"
 		print "DESCRIPTION:"
-		print "\t Sell requested share [0.0, 1.0] of available BTC at requested price."
-		print "\t e.g. sell 0.25 100.0"
+		print "\tSell available BTC at requested price.\n"
+		print "\t[-s btc_share]   Specify share of available BTC to sell (e.g. 0.314)."
+		print "\t[-a btc_amount]  Specify amount of available BTC to sell (e.g. 3.14)."
 	def do_sell(self, args):
-		arglist = self._args_to_list(args)
-		if (len(arglist) != 2):
+		try:
+			opts, args = getopt.getopt(args.split(), 's:a:')
+		except getopt.GetoptError as err:
+			print str(err)
+			opts, args = ([], [])
+		if (len(opts) != 1 or len(args) != 1):
 			self.do_help("sell")
 			return
-		btc_share, price = arglist
-		if (self._share_invalid(btc_share)):
-			return
+		price = args[0]
 		auth = self._api_auth()
 		btc_available = json.loads(api.balance(auth))["btc_available"]
-		btc_amount = float(btc_share) * float(btc_available)
+		btc_amount = 0.0
+		if ('-s' == opts[0][0]):
+			btc_share = opts[0][1]
+			if (float(btc_share) < 0.0 or float(btc_share) > 1.0):
+				print "BTC share {} not in expected range (0.0 - 1.0).".format(btc_share)
+				return
+			btc_amount = float(btc_share) * float(btc_available)
+		if ('-a' == opts[0][0]):
+			btc_amount = opts[0][1]
+			if (float(btc_amount) < 0.0 or float(btc_amount) > float(btc_available)):
+				print "BTC amount {} not available.".format(btc_amount)
+				return
 		if (btc_amount == 0.0):
-			print "BTC amount is 0"
+			print "Can't sell 0.0 BTC."
 			return
-		print "selling {} BTC for {} USD/BTC".format(btc_amount, price)
+		confirm = raw_input("Selling {} BTC for {} USD/BTC? [y/n]: ".format(btc_amount, price))
+		if (confirm != "y"):
+			return
 		auth = self._api_auth()
 		print api.sell(auth, btc_amount, price)
 
 	# show orders
 	def help_orders(self):
-		print "USAGE:"
-		print "\t orders"
+		print "\nUSAGE:"
+		print "\torders"
 		print "DESCRIPTION:"
-		print "\t Show currently open orders."
+		print "\tShow currently open orders."
 	def do_orders(self, args):
 		auth = self._api_auth()
 		ret = json.loads(api.open_orders(auth))
@@ -164,34 +209,42 @@ class BitstampCmd(cmd.Cmd):
 
 	# cancel order
 	def help_cancel(self):
-		print "USAGE:"
-		print "\t cancel <order_id>"
+		print "\nUSAGE:"
+		print "\tcancel <order_id>"
 		print "DESCRIPTION:"
-		print "\t Cancel an open order."
+		print "\tCancel an open order."
 	def do_cancel(self, args):
-		arglist = self._args_to_list(args)
-		if (len(arglist) != 1):
+		try:
+			opts, args = getopt.getopt(args.split(), '')
+		except getopt.GetoptError as err:
+			print str(err)
+			opts, args = ([], [])
+		if (len(args) != 1):
 			self.do_help("cancel")
 			return
-		order_id = arglist[0]
+		order_id = args[0]
 		auth = self._api_auth()
 		print api.cancel_order(auth, order_id)
 
 	# show transactions
 	def help_transactions(self):
-		print "USAGE:"
-		print "\t transactions [num_last]"
+		print "\nUSAGE:"
+		print "\ttransactions [num_last]"
 		print "DESCRIPTION:"
-		print "\t Show list of transactions in descending order."
-		print "\t Providing [num_last] parameter will show only that many last transactions."
+		print "\tShow list of transactions in descending order.\n"
+		print "\t[num_last]  Show only that many last transactions."
 	def do_transactions(self, args):
-		arglist = self._args_to_list(args)
-		if (len(arglist) > 1):
+		try:
+			opts, args = getopt.getopt(args.split(), '')
+		except getopt.GetoptError as err:
+			print str(err)
+			opts, args = ([], [])
+		if (len(args) > 1):
 			self.do_help("transactions")
 			return
 		auth = self._api_auth()
-		if (len(arglist) == 1):
-			limit = arglist[0]
+		if (len(args) == 1):
+			limit = args[0]
 			ret = json.loads(api.user_transactions(auth, limit=limit))
 		else:
 			ret = json.loads(api.user_transactions(auth))
@@ -200,10 +253,10 @@ class BitstampCmd(cmd.Cmd):
 
 	# exit
 	def help_exit(self):
-		print "USAGE:"
-		print "\t exit"
+		print "\nUSAGE:"
+		print "\texit"
 		print "DESCRIPTION:"
-		print "\t Exit the program."
+		print "\tExit the program."
 	def do_exit(self, args):
 		return True
 
