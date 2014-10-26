@@ -38,11 +38,9 @@ class BitstampCmd(cmd.Cmd):
 		self.client_id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 	def precmd(self, args):
-		arglist = self._args_to_list(args)
-		if (len(arglist) != 0) and (arglist[0] == "authorization"):
-			return args
-		if (self.api_key == "xxx") or (self.api_secret == "xxx") or (self.client_id == "xxx"):
-			print "No authorization data, please run authorization command."
+		if (len(args) != 0):
+			if (args.split()[0] != "authorization") and ((self.api_key == "xxx") or (self.api_secret == "xxx") or (self.client_id == "xxx")):
+				print "No authorization data, please run authorization command."
 		return args
 
 	# private functions
@@ -52,21 +50,6 @@ class BitstampCmd(cmd.Cmd):
 	def _api_auth(self):
 		self.nonce = api.nonce_update(self.nonce)
 		return api.authorization(self.api_key, self.api_secret, self.client_id, self.nonce)
-
-	# convert a string with arguments to a list with arguments
-	def _args_to_list(self, args):
-		if (len(args) == 0):
-			return []
-		else:
-			return args.split()
-
-	# check if share range is invalid
-	def _share_invalid(self, share):
-		if (float(share) < 0.0) or (float(share) > 1.0):
-			print "Requested share {} is not in valid range [0.0 - 1.0].".format(share)
-			return True
-		else:
-			return False
 
 	# commands
 	# ========
@@ -89,7 +72,7 @@ class BitstampCmd(cmd.Cmd):
 		if (len(args) > 3 or (len(args) < 3 and len(opts) != 1)):
 			self.do_help("authorization")
 			return
-		if (len(args) == 3): 
+		if (len(args) == 3):
 			self.api_key, self.api_secret, self.client_id = args
 		if (len(opts) == 1):
 			if ('--save' == opts[0][0]):
@@ -99,7 +82,7 @@ class BitstampCmd(cmd.Cmd):
 				auth_data = authorization.load()
 				if (auth_data != []):
 					self.api_key, self.api_secret, self.client_id = auth_data
-					print "Authorization data loaded."
+					print "Authorization data loaded for client ID: {}".format(self.client_id)
 
 	# show balance
 	def help_balance(self):

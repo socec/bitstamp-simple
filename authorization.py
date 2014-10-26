@@ -45,7 +45,7 @@ auth_filename = "authpyc"
 def save(api_key, api_secret, client_id):
 	auth_data = api_key + api_secret + client_id
 	if (pycrypto_avaliable):
-		password = getpass.getpass("Your password: ")
+		password = getpass.getpass("Choose your password: ")
 		auth_data = _data_encrypt(password, auth_data)
 	else:
 		print "saving in plaintext..."
@@ -60,7 +60,7 @@ def load():
 		print "Can't open authorization data file."
 		return []
 	if (pycrypto_avaliable):
-		password = getpass.getpass("Your password: ")
+		password = getpass.getpass("Enter your password: ")
 		auth_data = _data_decrypt(password, auth_data)
 	if (len(auth_data) != 70):
 		print "Authorization data file is corrupted ({}). ".format(len(auth_data))
