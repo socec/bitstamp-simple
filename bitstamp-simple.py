@@ -52,15 +52,25 @@ class BitstampCmd(cmd.Cmd):
 	# commands
 	# ========
 
+	# show ticker info
+	def help_ticker(self):
+		print "\nDESCRIPTION:"
+		print "    Show last price, highest bid and lowest ask."
+		print "USAGE:"
+		print "    ticker"
+	def do_ticker(self, args):
+		ret = json.loads(api.ticker())
+		print "bid {} | price {} | ask {}".format(ret['bid'], ret['last'], ret['ask'])
+
 	# enter authentication data
 	def help_authentication(self):
-		print "\nUSAGE:"
-		print "\tauthentication [--load] [--save] [key secret id]"
-		print "DESCRIPTION:"
-		print "\tManage API key, API secret and client ID for private API calls.\n"
-		print "\t[key secret id]  Enter authentication data for current session."
-		print "\t[--save]         Saves current authentication data to a local file."
-		print "\t[--load]         Loads authentication data from a local file."
+		print "\nDESCRIPTION:"
+		print "    Manage API key, API secret and client ID for private API calls."
+		print "USAGE:"
+		print "    authentication [options]"
+		print "        [key secret id]  Enter authentication data for current session"
+		print "        [--save]         Save current authentication data to a local file"
+		print "        [--load]         Load authentication data from a local file"
 	def do_authentication(self, args):
 		try:
 			opts, args = getopt.getopt(args.split(), '', ['save', 'load'])
@@ -82,22 +92,12 @@ class BitstampCmd(cmd.Cmd):
 					self.api_key, self.api_secret, self.client_id = auth_data
 					print "Authentication data loaded for client ID: {}".format(self.client_id)
 
-	# show ticker info
-	def help_ticker(self):
-		print "\nUSAGE:"
-		print "\tticker"
-		print "DESCRIPTION:"
-		print "\tShow last price, highest bid and lowest ask."
-	def do_ticker(self, args):
-		ret = json.loads(api.ticker())
-		print "bid {} | price {} | ask {}".format(ret['bid'], ret['last'], ret['ask'])
-
 	# show balance
 	def help_balance(self):
-		print "\nUSAGE:"
-		print "\tbalance"
-		print "DESCRIPTION:"
-		print "\tShow current account balance."
+		print "\nDESCRIPTION:"
+		print "    Show current account balance."
+		print "USAGE:"
+		print "    balance"
 	def do_balance(self, args):
 		auth = self._api_auth()
 		ret = json.loads(api.balance(auth))
@@ -105,12 +105,12 @@ class BitstampCmd(cmd.Cmd):
 
 	# buy BTC
 	def help_buy(self):
-		print "\nUSAGE:"
-		print "\tbuy [-s usd_share] | [-a usd_amount] <price>"
-		print "DESCRIPTION:"
-		print "\tBuy BTC at requested price by spending available USD.\n"
-		print "\t[-s usd_share]   Specify share of available USD to spend (e.g. 0.314)."
-		print "\t[-a usd_amount]  Specify amount of available USD to spend (e.g. 31.4)."
+		print "\nDESCRIPTION:"
+		print "    Buy BTC at requested price by spending available USD."
+		print "USAGE:"
+		print "    buy [options] <price>"
+		print "        [-s usd_share]   Specify share of available USD to spend (e.g. 0.314)"
+		print "        [-a usd_amount]  Specify amount of available USD to spend (e.g. 31.4)"
 	def do_buy(self, args):
 		try:
 			opts, args = getopt.getopt(args.split(), 's:a:')
@@ -147,12 +147,12 @@ class BitstampCmd(cmd.Cmd):
 
 	# sell BTC
 	def help_sell(self):
-		print "\nUSAGE:"
-		print "\tsell [-s btc_share] | [-a btc_amount] <price>"
-		print "DESCRIPTION:"
-		print "\tSell available BTC at requested price.\n"
-		print "\t[-s btc_share]   Specify share of available BTC to sell (e.g. 0.314)."
-		print "\t[-a btc_amount]  Specify amount of available BTC to sell (e.g. 3.14)."
+		print "\nDESCRIPTION:"
+		print "    Sell available BTC at requested price."
+		print "USAGE:"
+		print "    sell [options] <price>"
+		print "        [-s btc_share]   Specify share of available BTC to sell (e.g. 0.314)"
+		print "        [-a btc_amount]  Specify amount of available BTC to sell (e.g. 3.14)"
 	def do_sell(self, args):
 		try:
 			opts, args = getopt.getopt(args.split(), 's:a:')
@@ -188,10 +188,10 @@ class BitstampCmd(cmd.Cmd):
 
 	# show orders
 	def help_orders(self):
-		print "\nUSAGE:"
-		print "\torders"
-		print "DESCRIPTION:"
-		print "\tShow currently open orders."
+		print "\nDESCRIPTION:"
+		print "    Show currently open orders."
+		print "USAGE:"
+		print "    orders"
 	def do_orders(self, args):
 		auth = self._api_auth()
 		ret = json.loads(api.open_orders(auth))
@@ -200,10 +200,10 @@ class BitstampCmd(cmd.Cmd):
 
 	# cancel order
 	def help_cancel(self):
-		print "\nUSAGE:"
-		print "\tcancel <order_id>"
-		print "DESCRIPTION:"
-		print "\tCancel an open order."
+		print "\nDESCRIPTION:"
+		print "    Cancel an open order."
+		print "USAGE:"
+		print "    cancel <order_id>"
 	def do_cancel(self, args):
 		try:
 			opts, args = getopt.getopt(args.split(), '')
@@ -219,11 +219,11 @@ class BitstampCmd(cmd.Cmd):
 
 	# show transactions
 	def help_transactions(self):
-		print "\nUSAGE:"
-		print "\ttransactions [num_last]"
-		print "DESCRIPTION:"
-		print "\tShow list of transactions in descending order.\n"
-		print "\t[num_last]  Show only that many last transactions."
+		print "\nDESCRIPTION:"
+		print "    Show list of transactions in descending order."
+		print "USAGE:"
+		print "    transactions [options]"
+		print "        [num_last]  Show only that many last transactions"
 	def do_transactions(self, args):
 		try:
 			opts, args = getopt.getopt(args.split(), '')
@@ -244,10 +244,10 @@ class BitstampCmd(cmd.Cmd):
 
 	# exit
 	def help_exit(self):
-		print "\nUSAGE:"
-		print "\texit"
-		print "DESCRIPTION:"
-		print "\tExit the program."
+		print "\nDESCRIPTION:"
+		print "    Exit the program."
+		print "USAGE:"
+		print "    exit"
 	def do_exit(self, args):
 		return True
 
