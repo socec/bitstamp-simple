@@ -1,4 +1,4 @@
-# Handling authorization data
+# Handling authentication data
 
 # define cryptographic functions only if PyCrypto is available,
 # see http://www.pycrypto.org for more information
@@ -37,7 +37,7 @@ except ImportError:
 	print "PyCrypto not available"
 
 
-# save and load functions for authorization data, aware of cryptographic ability
+# save and load functions for authentication data, aware of cryptographic ability
 # ==============================================================================
 
 auth_filename = "authpyc"
@@ -57,13 +57,13 @@ def load():
 		with open(auth_filename, 'r') as f:
 			auth_data = f.read()
 	except:
-		print "Can't open authorization data file."
+		print "Can't open authentication data file."
 		return []
 	if (pycrypto_avaliable):
 		password = getpass.getpass("Enter your password: ")
 		auth_data = _data_decrypt(password, auth_data)
 	if (len(auth_data) != 70):
-		print "Authorization data file is corrupted ({}). ".format(len(auth_data))
+		print "Authentication data file is corrupted ({}). ".format(len(auth_data))
 		return []
 	api_key = auth_data[0:32]
 	api_secret = auth_data[32:64]

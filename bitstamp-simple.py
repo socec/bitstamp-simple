@@ -1,5 +1,5 @@
 import cmd, json, getopt
-import api, authorization
+import api, authentication
 
 # Command interpreter for Bitstamp API
 class BitstampCmd(cmd.Cmd):
@@ -25,9 +25,9 @@ class BitstampCmd(cmd.Cmd):
 		self.do_help(None)
 
 	def preloop(self):
-		ret = raw_input("Load authorization data? [y/n]: ")
+		ret = raw_input("Load authentication data? [y/n]: ")
 		if (ret == "y"):
-			self.do_authorization("--load")
+			self.do_authentication("--load")
 		return
 
 	def postloop(self):
@@ -37,50 +37,50 @@ class BitstampCmd(cmd.Cmd):
 
 	def precmd(self, args):
 		if (len(args) != 0):
-			if (args.split()[0] != "authorization") and ((self.api_key == "xxx") or (self.api_secret == "xxx") or (self.client_id == "xxx")):
-				print "No authorization data, please run authorization command."
+			if (args.split()[0] != "authentication") and ((self.api_key == "xxx") or (self.api_secret == "xxx") or (self.client_id == "xxx")):
+				print "No authentication data, please run authentication command."
 		return args
 
 	# private functions
 	# =================
 
-	# prepare API authorization
+	# prepare API authentication
 	def _api_auth(self):
 		self.nonce = api.nonce_update(self.nonce)
-		return api.authorization(self.api_key, self.api_secret, self.client_id, self.nonce)
+		return api.authentication(self.api_key, self.api_secret, self.client_id, self.nonce)
 
 	# commands
 	# ========
 
-	# enter authorization data
-	def help_authorization(self):
+	# enter authentication data
+	def help_authentication(self):
 		print "\nUSAGE:"
-		print "\tauthorization [--load] [--save] [key secret id]"
+		print "\tauthentication [--load] [--save] [key secret id]"
 		print "DESCRIPTION:"
 		print "\tManage API key, API secret and client ID for private API calls.\n"
-		print "\t[key secret id]  Enter authorization data for current session."
-		print "\t[--save]         Saves current authorization data to a local file."
-		print "\t[--load]         Loads authorization data from a local file."
-	def do_authorization(self, args):
+		print "\t[key secret id]  Enter authentication data for current session."
+		print "\t[--save]         Saves current authentication data to a local file."
+		print "\t[--load]         Loads authentication data from a local file."
+	def do_authentication(self, args):
 		try:
 			opts, args = getopt.getopt(args.split(), '', ['save', 'load'])
 		except getopt.GetoptError as err:
 			print str(err)
 			opts, args = ([], [])
 		if (len(args) > 3 or (len(args) < 3 and len(opts) != 1)):
-			self.do_help("authorization")
+			self.do_help("authentication")
 			return
 		if (len(args) == 3):
 			self.api_key, self.api_secret, self.client_id = args
 		if (len(opts) == 1):
 			if ('--save' == opts[0][0]):
-				authorization.save(self.api_key, self.api_secret, self.client_id)
-				print "Authorization data saved."
+				authentication.save(self.api_key, self.api_secret, self.client_id)
+				print "Authentication data saved."
 			if ('--load' == opts[0][0]):
-				auth_data = authorization.load()
+				auth_data = authentication.load()
 				if (auth_data != []):
 					self.api_key, self.api_secret, self.client_id = auth_data
-					print "Authorization data loaded for client ID: {}".format(self.client_id)
+					print "Authentication data loaded for client ID: {}".format(self.client_id)
 
 	# show ticker info
 	def help_ticker(self):

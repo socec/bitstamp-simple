@@ -4,14 +4,14 @@
 
 import hmac, hashlib, time, urllib2
 
-# authorization functions
+# authentication functions
 # =======================
 
 def nonce_update(nonce):
 	# return greater value between incremented nonce and current timestamp
 	return int(max(int(nonce)+1, int(time.time())))
 
-def authorization(api_key, api_secret, client_id, nonce):
+def authentication(api_key, api_secret, client_id, nonce):
 	nonce = str(nonce)
 	message = nonce + client_id + api_key
 	signature = hmac.new(api_secret, msg=message, digestmod=hashlib.sha256).hexdigest().upper()
@@ -46,7 +46,7 @@ def ticker():
 	data = []
 	return _http_communication(url, data)
 
-def balance(authorization):
+def balance(authentication):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -62,10 +62,10 @@ def balance(authorization):
 	# fee - customer trading fee
 
 	url = base_url + "/balance/"
-	data = authorization
+	data = authentication
 	return _http_communication(url, data)
 
-def user_transactions(authorization, offset = 0, limit = 200, sort = "desc"):
+def user_transactions(authentication, offset = 0, limit = 200, sort = "desc"):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -84,10 +84,10 @@ def user_transactions(authorization, offset = 0, limit = 200, sort = "desc"):
 	# order_id - executed order id
 
 	url = base_url + "/user_transactions/"
-	data = authorization + "&offset=" + str(offset) + "&limit=" + str(limit) + "&sort=" + sort
+	data = authentication + "&offset=" + str(offset) + "&limit=" + str(limit) + "&sort=" + sort
 	return _http_communication(url, data)
 
-def open_orders(authorization):
+def open_orders(authentication):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -101,10 +101,10 @@ def open_orders(authorization):
 	# amount - amount
 
 	url = base_url + "/open_orders/"
-	data = authorization
+	data = authentication
 	return _http_communication(url, data)
 
-def cancel_order(authorization, order_id):
+def cancel_order(authentication, order_id):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -114,10 +114,10 @@ def cancel_order(authorization, order_id):
 	# Returns 'true' if order has been found and canceled.
 
 	url = base_url + "/cancel_order/"
-	data = authorization + "&id=" + str(order_id)
+	data = authentication + "&id=" + str(order_id)
 	return _http_communication(url, data)
 
-def buy(authorization, amount, price):
+def buy(authentication, amount, price):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -133,10 +133,10 @@ def buy(authorization, amount, price):
 	# amount - amount
 
 	url = base_url + "/buy/"
-	data = authorization + "&amount=" + ("%.8f" % amount) + "&price=" + str(price)
+	data = authentication + "&amount=" + ("%.8f" % amount) + "&price=" + str(price)
 	return _http_communication(url, data)
 
-def sell(authorization, amount, price):
+def sell(authentication, amount, price):
 	# Params:
 	# key - API key
 	# signature - signature
@@ -152,5 +152,5 @@ def sell(authorization, amount, price):
 	# amount - amount
 
 	url = base_url + "/sell/"
-	data = authorization + "&amount=" + ("%.8f" % amount) + "&price=" + str(price)
+	data = authentication + "&amount=" + ("%.8f" % amount) + "&price=" + str(price)
 	return _http_communication(url, data)
