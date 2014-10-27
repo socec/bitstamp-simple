@@ -2,9 +2,7 @@
 # https://www.bitstamp.net/api/
 # =============================
 
-import hmac, hashlib
-import time
-import urllib2, json
+import hmac, hashlib, time, urllib2
 
 # authorization functions
 # =======================
@@ -26,10 +24,27 @@ def authorization(api_key, api_secret, client_id, nonce):
 base_url = "https://www.bitstamp.net/api"
 
 def _http_communication(url, data):
-	connection = urllib2.urlopen(url, data)
+	if (data == []):
+		connection = urllib2.urlopen(url)
+	else:
+		connection = urllib2.urlopen(url, data)
 	response = connection.read()
 	connection.close()
 	return response
+
+def ticker():
+	# Returns JSON dictionary:
+	# last - last BTC price
+	# high - last 24 hours price high
+	# low - last 24 hours price low
+	# vwap - last 24 hours volume weighted average price: vwap
+	# volume - last 24 hours volume
+	# bid - highest buy order
+	# ask - lowest sell order
+	# timestamp - unix timestamp date and time
+	url = base_url + "/ticker/"
+	data = []
+	return _http_communication(url, data)
 
 def balance(authorization):
 	# Params:

@@ -82,6 +82,16 @@ class BitstampCmd(cmd.Cmd):
 					self.api_key, self.api_secret, self.client_id = auth_data
 					print "Authorization data loaded for client ID: {}".format(self.client_id)
 
+	# show ticker info
+	def help_ticker(self):
+		print "\nUSAGE:"
+		print "\tticker"
+		print "DESCRIPTION:"
+		print "\tShow last price, highest bid and lowest ask."
+	def do_ticker(self, args):
+		ret = json.loads(api.ticker())
+		print "bid {} | price {} | ask {}".format(ret['bid'], ret['last'], ret['ask'])
+
 	# show balance
 	def help_balance(self):
 		print "\nUSAGE:"
