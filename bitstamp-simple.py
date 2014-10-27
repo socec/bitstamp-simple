@@ -27,9 +27,7 @@ class BitstampCmd(cmd.Cmd):
 	def preloop(self):
 		ret = raw_input("Load authorization data? [y/n]: ")
 		if (ret == "y"):
-			auth_data = authorization.load()
-			if (auth_data != []):
-				self.api_key, self.api_secret, self.client_id = auth_data
+			self.do_authorization("--load")
 		return
 
 	def postloop(self):
