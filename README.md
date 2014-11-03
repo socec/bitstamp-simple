@@ -4,7 +4,7 @@ bitstamp-simple
 A simple Bitstamp API client
 
 Small command line interpreter in Python for simple trading on Bitstamp.  
-Use your Bitstamp API key, secret and client ID to execute simple commands:
+Use your Bitstamp API key, API secret and client ID to execute simple commands:
 - check account balance
 - buy and sell BTC
 - check and cancel open orders

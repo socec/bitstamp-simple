@@ -8,9 +8,9 @@ class BitstampCmd(cmd.Cmd):
 	# ============
 
 	nonce = 0
-	api_key = "xxx"
-	api_secret = "xxx"
-	client_id = "xxx"
+	api_key = "X"
+	api_secret = "X"
+	client_id = "X"
 
 	# overriding interpreter setup
 	# ============================
@@ -37,7 +37,7 @@ class BitstampCmd(cmd.Cmd):
 
 	def precmd(self, args):
 		if (len(args) != 0):
-			if (args.split()[0] != "authentication") and ((self.api_key == "xxx") or (self.api_secret == "xxx") or (self.client_id == "xxx")):
+			if (args.split()[0] != "authentication" and self._auth_missing()):
 				print "No authentication data, please run authentication command."
 		return args
 
@@ -48,6 +48,10 @@ class BitstampCmd(cmd.Cmd):
 	def _api_auth(self):
 		self.nonce = api.nonce_update(self.nonce)
 		return api.authentication(self.api_key, self.api_secret, self.client_id, self.nonce)
+
+	# check if authentication data is missing
+	def _auth_missing(self):
+		return ((self.api_key == "X") or (self.api_secret == "X") or (self.client_id == "X"))
 
 	# commands
 	# ========
@@ -99,8 +103,7 @@ class BitstampCmd(cmd.Cmd):
 		print "USAGE:"
 		print "    balance"
 	def do_balance(self, args):
-		auth = self._api_auth()
-		ret = json.loads(api.balance(auth))
+		ret = json.loads(api.balance(self._api_auth()))
 		print json.dumps(ret, indent=2)
 
 	# buy BTC
@@ -121,8 +124,7 @@ class BitstampCmd(cmd.Cmd):
 			self.do_help("buy")
 			return
 		price = args[0]
-		auth = self._api_auth()
-		usd_available = json.loads(api.balance(auth))["usd_available"]
+		usd_available = json.loads(api.balance(self._api_auth()))["usd_available"]
 		btc_amount = 0.0
 		if ('-s' == opts[0][0]):
 			usd_share = opts[0][1]
@@ -142,8 +144,7 @@ class BitstampCmd(cmd.Cmd):
 		confirm = raw_input("Buying {} BTC for {} USD/BTC? [y/n]: ".format(btc_amount, price))
 		if (confirm != "y"):
 			return
-		auth = self._api_auth()
-		print api.buy(auth, btc_amount, price)
+		print api.buy(self._api_auth(), btc_amount, price)
 
 	# sell BTC
 	def help_sell(self):
@@ -163,8 +164,7 @@ class BitstampCmd(cmd.Cmd):
 			self.do_help("sell")
 			return
 		price = args[0]
-		auth = self._api_auth()
-		btc_available = json.loads(api.balance(auth))["btc_available"]
+		btc_available = json.loads(api.balance(self._api_auth()))["btc_available"]
 		btc_amount = 0.0
 		if ('-s' == opts[0][0]):
 			btc_share = opts[0][1]
@@ -183,8 +183,7 @@ class BitstampCmd(cmd.Cmd):
 		confirm = raw_input("Selling {} BTC for {} USD/BTC? [y/n]: ".format(btc_amount, price))
 		if (confirm != "y"):
 			return
-		auth = self._api_auth()
-		print api.sell(auth, btc_amount, price)
+		print api.sell(self._api_auth(), btc_amount, price)
 
 	# show orders
 	def help_orders(self):
@@ -193,8 +192,7 @@ class BitstampCmd(cmd.Cmd):
 		print "USAGE:"
 		print "    orders"
 	def do_orders(self, args):
-		auth = self._api_auth()
-		ret = json.loads(api.open_orders(auth))
+		ret = json.loads(api.open_orders(self._api_auth()))
 		for item in ret:
 			print json.dumps(item)
 
@@ -214,8 +212,7 @@ class BitstampCmd(cmd.Cmd):
 			self.do_help("cancel")
 			return
 		order_id = args[0]
-		auth = self._api_auth()
-		print api.cancel_order(auth, order_id)
+		print api.cancel_order(self._api_auth(), order_id)
 
 	# show transactions
 	def help_transactions(self):
@@ -233,12 +230,11 @@ class BitstampCmd(cmd.Cmd):
 		if (len(args) > 1):
 			self.do_help("transactions")
 			return
-		auth = self._api_auth()
 		if (len(args) == 1):
 			limit = args[0]
-			ret = json.loads(api.user_transactions(auth, limit=limit))
+			ret = json.loads(api.user_transactions(self._api_auth(), limit=limit))
 		else:
-			ret = json.loads(api.user_transactions(auth))
+			ret = json.loads(api.user_transactions(self._api_auth()))
 		for item in ret:
 			print json.dumps(item)
 

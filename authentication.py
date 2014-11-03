@@ -38,7 +38,7 @@ except ImportError:
 
 
 # save and load functions for authentication data, aware of cryptographic ability
-# ==============================================================================
+# ===============================================================================
 
 auth_filename = "authpyc"
 

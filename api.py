@@ -5,7 +5,7 @@
 import hmac, hashlib, time, urllib2
 
 # authentication functions
-# =======================
+# ========================
 
 def nonce_update(nonce):
 	# return greater value between incremented nonce and current timestamp
