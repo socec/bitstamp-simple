@@ -123,21 +123,21 @@ class BitstampCmd(cmd.Cmd):
 		if (len(opts) != 1 or len(args) != 1):
 			self.do_help("buy")
 			return
-		price = args[0]
-		usd_available = json.loads(api.balance(self._api_auth()))["usd_available"]
+		price = float(args[0])
+		usd_available = float(json.loads(api.balance(self._api_auth()))["usd_available"])
 		btc_amount = 0.0
 		if ('-s' == opts[0][0]):
-			usd_share = opts[0][1]
-			if (float(usd_share) < 0.0 or float(usd_share) > 1.0):
+			usd_share = float(opts[0][1])
+			if (usd_share < 0.0 or usd_share > 1.0):
 				print "USD share {} not in expected range (0.0 - 1.0).".format(usd_share)
 				return
-			btc_amount = (float(usd_share) * float(usd_available)) / float(price)
+			btc_amount = (usd_share * usd_available) / price
 		if ('-a' == opts[0][0]):
-			usd_amount = opts[0][1]
-			if (float(usd_amount) < 0.0 or float(usd_amount) > float(usd_available)):
+			usd_amount = float(opts[0][1])
+			if (usd_amount < 0.0 or usd_amount > usd_available):
 				print "USD amount {} not available.".format(usd_amount)
 				return
-			btc_amount = float(usd_amount) / float(price)
+			btc_amount = usd_amount / price
 		if (btc_amount == 0.0):
 			print "Can't buy 0.0 BTC."
 			return
@@ -163,18 +163,18 @@ class BitstampCmd(cmd.Cmd):
 		if (len(opts) != 1 or len(args) != 1):
 			self.do_help("sell")
 			return
-		price = args[0]
-		btc_available = json.loads(api.balance(self._api_auth()))["btc_available"]
+		price = float(args[0])
+		btc_available = float(json.loads(api.balance(self._api_auth()))["btc_available"])
 		btc_amount = 0.0
 		if ('-s' == opts[0][0]):
-			btc_share = opts[0][1]
-			if (float(btc_share) < 0.0 or float(btc_share) > 1.0):
+			btc_share = float(opts[0][1])
+			if (btc_share < 0.0 or btc_share > 1.0):
 				print "BTC share {} not in expected range (0.0 - 1.0).".format(btc_share)
 				return
-			btc_amount = float(btc_share) * float(btc_available)
+			btc_amount = btc_share * btc_available
 		if ('-a' == opts[0][0]):
-			btc_amount = opts[0][1]
-			if (float(btc_amount) < 0.0 or float(btc_amount) > float(btc_available)):
+			btc_amount = float(opts[0][1])
+			if (btc_amount < 0.0 or btc_amount > btc_available):
 				print "BTC amount {} not available.".format(btc_amount)
 				return
 		if (btc_amount == 0.0):
