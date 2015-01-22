@@ -1,5 +1,6 @@
 import cmd, json, getopt
-import api, authentication
+import bstamp.api as api
+import bstamp.authentication as authentication
 
 # Command interpreter for Bitstamp API
 class BitstampCmd(cmd.Cmd):
@@ -37,7 +38,7 @@ class BitstampCmd(cmd.Cmd):
 
 	def precmd(self, args):
 		if (len(args) != 0):
-			if (args.split()[0] != "authentication" and self._auth_missing()):
+			if (args.split()[0] != "authentication" and self._auth_is_missing()):
 				print "No authentication data, please run authentication command."
 		return args
 
@@ -50,7 +51,7 @@ class BitstampCmd(cmd.Cmd):
 		return api.authentication(self.api_key, self.api_secret, self.client_id, self.nonce)
 
 	# check if authentication data is missing
-	def _auth_missing(self):
+	def _auth_is_missing(self):
 		return ((self.api_key == "X") or (self.api_secret == "X") or (self.client_id == "X"))
 
 	# commands

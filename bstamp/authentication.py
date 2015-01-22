@@ -40,7 +40,7 @@ except ImportError:
 # save and load functions for authentication data, aware of cryptographic ability
 # ===============================================================================
 
-auth_filename = "authpyc"
+auth_filename = "bstamp/authpyc"
 
 def save(api_key, api_secret, client_id):
 	auth_data = api_key + api_secret + client_id
