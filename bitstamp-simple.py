@@ -129,7 +129,7 @@ class BitstampCmd(cmd.Cmd):
 		# correct available USD for the fee
 		balance_json = json.loads(api.balance(self._api_auth()))
 		fee = (float(balance_json["fee"]) / 100.0)
-		usd_available = usd_available * (1.0 - fee)
+		usd_available = usd_available * (1.0 - fee) - 0.01
 		print "Available USD for buying: " + str(usd_available)
 		btc_amount = 0.0
 		if ('-s' == opts[0][0]):
