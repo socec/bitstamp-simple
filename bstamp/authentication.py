@@ -33,7 +33,7 @@ try:
         data = base64.b32decode(ciphertext)
         iv = data[0:AES.block_size]
         key = _password_hash(password)
-        return AES.new(key, AES.MODE_CFB, iv).decrypt(data[AES.block_size:])
+        return AES.new(key, AES.MODE_CFB, iv).decrypt(data[AES.block_size:]).decode('utf-8')
 
 except ImportError:
     pycrypto_avaliable = False
@@ -65,7 +65,7 @@ def load():
         return []
     if (pycrypto_avaliable):
         password = getpass.getpass('Enter your password: ')
-        auth_data = _data_decrypt(password, auth_data).decode('utf-8')
+        auth_data = _data_decrypt(password, auth_data)
     if (len(auth_data) != 70):
         print('Authentication data file is corrupted ({}). '.format(len(auth_data)))
         return []

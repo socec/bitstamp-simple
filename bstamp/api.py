@@ -11,17 +11,18 @@ import urllib.request
 # API authentication functions
 # ============================
 
-def nonce_update(nonce):
+def nonce_update(nonce: int):
     # return greater value between incremented nonce and current timestamp
     return int(max(int(nonce) + 1, int(time.time())))
 
 
-def authentication(api_key, api_secret, client_id, nonce):
+def authentication(api_key: str, api_secret: str, client_id: str, nonce: int):
+    api_secret = api_secret.encode('utf-8')
     nonce = str(nonce)
-    message = nonce + client_id + api_key
+    message = (nonce + client_id + api_key).encode('utf-8')
     signature = hmac.new(api_secret, msg=message, digestmod=hashlib.sha256).hexdigest().upper()
-    ksn = 'key=' + str(api_key) + '&signature=' + str(signature) + '&nonce=' + nonce
-    return ksn
+    ksn = 'key=%s&signature=%s&nonce=%s' % (str(api_key), str(signature), nonce)
+    return ksn.encode('utf-8')
 
 
 # API functions
@@ -31,9 +32,10 @@ base_url = 'https://www.bitstamp.net/api'
 
 
 def _http_communication(url, data):
-    with  urllib.request.urlopen(url, data) as response:
-        data = response.read()
-    return data
+    if type(data) == str:
+        data = data.encode('utf-8')
+    with urllib.request.urlopen(url, data) as response:
+        return response.read()
 
 
 def ticker():
