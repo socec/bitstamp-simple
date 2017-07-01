@@ -1,1 +1,16 @@
+# general Python
+build/
+dist/
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+
+# editors
+*~
+*.swp
+.idea
+
+# project
 *pyc
