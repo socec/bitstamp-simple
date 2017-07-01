@@ -253,6 +253,5 @@ class BitstampCmd(cmd.Cmd):
 	def do_exit(self, args):
 		return True
 
-# execute if module is run directly (not imported)
-if __name__ == "__main__":
+def execute():
 	BitstampCmd().cmdloop()

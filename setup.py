@@ -16,7 +16,7 @@ setup(
     install_requires=['pycrypto'],
     entry_points={
             'console_scripts': [
-                'sample=sample:main',
+                'bitstamp-simple=cli.bitstamp_simple:execute',
             ],
         },
 )
