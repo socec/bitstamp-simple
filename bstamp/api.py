@@ -5,7 +5,7 @@
 import hashlib
 import hmac
 import time
-import urllib2
+import urllib.request
 
 
 # API authentication functions
@@ -31,13 +31,9 @@ base_url = 'https://www.bitstamp.net/api'
 
 
 def _http_communication(url, data):
-    if data:
-        connection = urllib2.urlopen(url, data)
-    else:
-        connection = urllib2.urlopen(url)
-    response = connection.read()
-    connection.close()
-    return response
+    with  urllib.request.urlopen(url, data) as response:
+        data = response.read()
+    return data
 
 
 def ticker():

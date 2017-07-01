@@ -29,7 +29,7 @@ class BitstampCmd(cmd.Cmd):
         self.do_help(None)
 
     def preloop(self):
-        ret = raw_input('Load authentication data? [y/n]: ')
+        ret = input('Load authentication data? [y/n]: ')
         if ret == 'y':
             self.do_authentication('--load')
         return
@@ -154,7 +154,7 @@ class BitstampCmd(cmd.Cmd):
         if btc_amount == 0.0:
             print('Can\'t buy 0.0 BTC.')
             return
-        confirm = raw_input('Buying {} BTC for {} USD/BTC? [y/n]: '.format(btc_amount, price))
+        confirm = input('Buying {} BTC for {} USD/BTC? [y/n]: '.format(btc_amount, price))
         if confirm != 'y':
             return
         print(api.buy(self._api_auth(), btc_amount, price))
@@ -194,7 +194,7 @@ class BitstampCmd(cmd.Cmd):
         if btc_amount == 0.0:
             print('Can\'t sell 0.0 BTC.')
             return
-        confirm = raw_input('Selling {} BTC for {} USD/BTC? [y/n]: '.format(btc_amount, price))
+        confirm = input('Selling {} BTC for {} USD/BTC? [y/n]: '.format(btc_amount, price))
         if confirm != 'y':
             return
         print(api.sell(self._api_auth(), btc_amount, price))

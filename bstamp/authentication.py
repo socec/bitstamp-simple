@@ -16,7 +16,7 @@ try:
 
     def _password_hash(password):
         hda = hashlib.sha256()
-        hda.update(password)
+        hda.update(password.encode('utf-8'))
         return hda.digest()
 
 
@@ -65,7 +65,7 @@ def load():
         return []
     if (pycrypto_avaliable):
         password = getpass.getpass('Enter your password: ')
-        auth_data = _data_decrypt(password, auth_data)
+        auth_data = _data_decrypt(password, auth_data).decode('utf-8')
     if (len(auth_data) != 70):
         print('Authentication data file is corrupted ({}). '.format(len(auth_data)))
         return []
